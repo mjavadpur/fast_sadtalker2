@@ -139,9 +139,9 @@ def main(args):
     print('Render Time: {}'.format(render_end - render_start))
     print('Interpolated Time: {}'.format(interpolate_end - interpolate_start))
 
-    if add_silent_both_slides:
-        # remove tmp_file
-        os.remove(output_path)
+    # if add_silent_both_slides:
+    #     # remove tmp_file
+    #     os.remove(output_path)
 
 
 if __name__ == '__main__':

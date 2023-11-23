@@ -267,10 +267,10 @@ class AnimateFromCoeff():
             
             save_video_with_watermark(enhanced_path, new_audio_path, av_path_enhancer, watermark= False)
             print(f'The generated video is named {video_save_dir}/{video_name_enhancer}')
-            os.remove(enhanced_path)
+            # os.remove(enhanced_path)
 
-        os.remove(path)
-        os.remove(new_audio_path)
+        # os.remove(path)
+        # os.remove(new_audio_path)
 
         return return_path
 
