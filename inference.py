@@ -19,6 +19,8 @@ os.environ ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 
 def main(args):
 
+    # Set PYTORCH_CUDA_ALLOC_CONF environment variable
+    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "heuristic"
     #torch.backends.cudnn.enabled = False
     pic_path = args.source_image
     audio_path = args.driven_audio

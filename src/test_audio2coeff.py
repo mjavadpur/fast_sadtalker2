@@ -42,17 +42,17 @@ class Audio2Coeff():
         for param in self.audio2pose_model.parameters():
             param.requires_grad = False 
         
-        # try:  # 可替换为自己训练的模型
-        #     if sadtalker_path['use_safetensor']:
-        #         checkpoints = safetensors.torch.load_file(sadtalker_path['checkpoint'])
-        #         self.audio2pose_model.load_state_dict(load_x_from_safetensor(checkpoints, 'audio2pose'))
-        #     else:
-        #         load_cpk(sadtalker_path['audio2pose_checkpoint'], model=self.audio2pose_model, device=device)
-        # except:
-        #     raise Exception("Failed in loading audio2pose_checkpoint")
+        try:  # 可替换为自己训练的模型
+            if sadtalker_path['use_safetensor']:
+                checkpoints = safetensors.torch.load_file(sadtalker_path['checkpoint'])
+                self.audio2pose_model.load_state_dict(load_x_from_safetensor(checkpoints, 'audio2pose'))
+            else:
+                load_cpk(sadtalker_path['audio2pose_checkpoint'], model=self.audio2pose_model, device=device)
+        except:
+            raise Exception("Failed in loading audio2pose_checkpoint")
 
         # add self-pretrained model here!
-        self.audio2pose_model.netG.load_state_dict(torch.load("/data/AiModels/SadTalker-dev/checkpoints/posevae_alignment_mae.pth")) 
+        # self.audio2pose_model.netG.load_state_dict(torch.load("/data/AiModels/SadTalker-dev/checkpoints/posevae_alignment_mae.pth")) 
         
         # if torch.cuda.device_count() > 1:
         #     self.audio2pose_model.audio_encoder = nn.DataParallel(self.audio2pose_model.audio_encoder)
