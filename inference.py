@@ -19,6 +19,7 @@ os.environ ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 
 def main(args):
 
+    inf_start = time.time()
     # Set PYTORCH_CUDA_ALLOC_CONF environment variable
     os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "heuristic"
     #torch.backends.cudnn.enabled = False
@@ -140,7 +141,9 @@ def main(args):
     print('Gen Coeff Time: {}'.format(gen_end - gen_start))
     print('Render Time: {}'.format(render_end - render_start))
     print('Interpolated Time: {}'.format(interpolate_end - interpolate_start))
-
+    
+    inf_end = time.time()
+    print(" -- Inference exec time: "+ str(inf_end - inf_start))
     # if add_silent_both_slides:
     #     # remove tmp_file
     #     os.remove(output_path)
@@ -155,7 +158,7 @@ if __name__ == '__main__':
     parser.add_argument("--checkpoint_dir", default='./checkpoints', help="path to output")
     parser.add_argument("--result_dir", default='./results', help="path to output")
     parser.add_argument("--pose_style", type=int, default=0,  help="input pose style from [0, 46)")
-    parser.add_argument("--batch_size", type=int, default=32,  help="the batch size of facerender")
+    parser.add_argument("--batch_size", type=int, default=16,  help="the batch size of facerender") # in 32 cuda raised memory error
     parser.add_argument("--size", type=int, default=256,  help="the image size of the facerender")
     parser.add_argument("--expression_scale", type=float, default=1.,  help="the batch size of facerender")
     parser.add_argument('--input_yaw', nargs='+', type=int, default=None, help="the input yaw degree of the user ")
