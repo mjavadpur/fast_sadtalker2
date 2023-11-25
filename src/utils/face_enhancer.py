@@ -100,9 +100,10 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
         # download pre-trained models from url
         model_path = url
 
+    upscale=2,
     restorer = GFPGANer(
         model_path=model_path,
-        upscale=2,
+        upscale=upscale,
         arch=arch,
         channel_multiplier=channel_multiplier,
         bg_upsampler=bg_upsampler)
@@ -112,6 +113,11 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
         
         img = cv2.cvtColor(images[idx], cv2.COLOR_RGB2BGR)
         
+        # mj inserted
+        h, w = img.shape[0:2]
+        if h < 300:
+            img = cv2.resize(img, (w * 2, h * 2), interpolation=cv2.INTER_LANCZOS4)
+
         # restore faces and background if necessary
         cropped_faces, restored_faces, r_img = restorer.enhance(
             img,
@@ -119,5 +125,10 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
             only_center_face=False,
             paste_back=True)
         
-        r_img = cv2.cvtColor(r_img, cv2.COLOR_BGR2RGB)
+        # mj inserted 3 line code
+        interpolation = cv2.INTER_AREA if upscale < 2 else cv2.INTER_LANCZOS4
+        h, w = img.shape[0:2]
+        r_img = cv2.resize(r_img, (int(w * upscale / 2), int(h * upscale / 2)), interpolation=interpolation)
+        
+        # r_img = cv2.cvtColor(r_img, cv2.COLOR_BGR2RGB)
         yield r_img
