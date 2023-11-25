@@ -109,6 +109,7 @@ def main(args):
     
     result = args.animate_from_coeff.generate(data, save_dir, pic_path, crop_info, args.fps, \
                                 enhancer=args.enhancer, background_enhancer=args.background_enhancer, preprocess=args.preprocess, img_size=args.size)
+    shutil.copy(result, save_dir+'_result.mp4')
     torch.cuda.synchronize()
     render_end = time.time()
 
