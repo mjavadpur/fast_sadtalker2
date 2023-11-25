@@ -109,7 +109,6 @@ def main(args):
     
     result = args.animate_from_coeff.generate(data, save_dir, pic_path, crop_info, args.fps, \
                                 enhancer=args.enhancer, background_enhancer=args.background_enhancer, preprocess=args.preprocess, img_size=args.size)
-    shutil.copy(result, save_dir+'_result.mp4')
     torch.cuda.synchronize()
     render_end = time.time()
 
@@ -117,6 +116,7 @@ def main(args):
     torch.cuda.synchronize() 
     interpolate_start = time.time()
     # add interpolate to final generated video
+    shutil.copy(result, save_dir+'_result.mp4')
     interpolate_result = "./interpolate_videos.mp4"
     interpolate_video(result, interpolate_result, factor=2)  # Interpolate Time: 0.8898725509643555
     # optical_flow_interpolation(result, interpolate_result, factor=2) # Interpolate Time: 4.715899467468262
