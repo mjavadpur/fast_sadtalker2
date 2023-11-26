@@ -112,7 +112,7 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
     for idx in tqdm(range(len(images)), 'Face Enhancer:'):
         
         img = cv2.cvtColor(images[idx], cv2.COLOR_RGB2BGR)
-         # mj inserted
+         # mj inserted 3 line code
         # h, w = img.shape[0:2]
         # if h < 300:
         #     img = cv2.resize(img, (w * 2, h * 2), interpolation=cv2.INTER_LANCZOS4)
