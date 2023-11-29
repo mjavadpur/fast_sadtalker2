@@ -100,7 +100,7 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
         # download pre-trained models from url
         model_path = url
 
-    upscale=4
+    upscale=2 # or 4 for high resolution videos
     restorer = GFPGANer(
         model_path=model_path,
         upscale=upscale,
