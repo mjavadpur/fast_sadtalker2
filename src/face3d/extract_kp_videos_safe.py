@@ -12,6 +12,8 @@ from facexlib.alignment import init_alignment_model, landmark_98_to_68
 from facexlib.detection import init_detection_model
 from torch.multiprocessing import Pool, Process, set_start_method
 
+from time import perf_counter
+
 
 class KeypointExtractor():
     def __init__(self, device='cuda'):
@@ -24,8 +26,16 @@ class KeypointExtractor():
         except:
             root_path = 'gfpgan/weights'
 
+        start = perf_counter()
         self.detector = init_alignment_model('awing_fan',device=device, model_rootpath=root_path)   
+        
+        end = perf_counter()
+        
+        print(f"KeypointExtractor 1:  {end - start}")
+        
         self.det_net = init_detection_model('retinaface_resnet50', half=False,device=device, model_rootpath=root_path)
+        end2 = perf_counter()
+        print(f"KeypointExtractor 2:  {end2 - end}")
 
     def extract_keypoint(self, images, name=None, info=True):
         if isinstance(images, list):

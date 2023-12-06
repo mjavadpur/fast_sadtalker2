@@ -42,7 +42,7 @@ class Audio2Coeff():
         for param in self.audio2pose_model.parameters():
             param.requires_grad = False 
         
-        try:  # 可替换为自己训练的模型
+        try:  # می تواند با یک مدل آموزش دیده توسط خودتان جایگزین شود
             if sadtalker_path['use_safetensor']:
                 checkpoints = safetensors.torch.load_file(sadtalker_path['checkpoint'])
                 self.audio2pose_model.load_state_dict(load_x_from_safetensor(checkpoints, 'audio2pose'))

@@ -21,3 +21,4 @@ gfpgan
 av
 safetensors
 moviepy
+realesrgan
