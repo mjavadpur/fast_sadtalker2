@@ -9,7 +9,7 @@ from src.utils.videoio import load_video_to_cv2
 
 import cv2
 
-
+restorer = None
 class GeneratorWithLen(object):
     """ From https://stackoverflow.com/a/7460929 """
 
@@ -107,25 +107,76 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
         arch=arch,
         channel_multiplier=channel_multiplier,
         bg_upsampler=bg_upsampler)
-
+    
+    
+    ctx = torch.multiprocessing.get_context("spawn")
+    with ctx.Pool(2) as pool:
+        r_img = pool.map(restore_mul, images)
+    # pool = ctx.Pool(7)
+    # pool.map(restore_mul, images)
+    
     # ------------------------ restore ------------------------
-    for idx in tqdm(range(len(images)), 'Face Enhancer:'):
+    # for idx in tqdm(range(len(images)), 'Face Enhancer:'):
         
-        img = cv2.cvtColor(images[idx], cv2.COLOR_RGB2BGR)
-         # mj inserted 3 line code
-        # h, w = img.shape[0:2]
-        # if h < 300:
-        #     img = cv2.resize(img, (w * 2, h * 2), interpolation=cv2.INTER_LANCZOS4)
-        # restore faces and background if necessary
-        cropped_faces, restored_faces, r_img = restorer.enhance(
-            img,
-            has_aligned=False,
-            only_center_face=False,
-            paste_back=True)
+    #     img = cv2.cvtColor(images[idx], cv2.COLOR_RGB2BGR)
+    #      # mj inserted 3 line code
+    #     # h, w = img.shape[0:2]
+    #     # if h < 300:
+    #     #     img = cv2.resize(img, (w * 2, h * 2), interpolation=cv2.INTER_LANCZOS4)
+    #     # restore faces and background if necessary
+    #     cropped_faces, restored_faces, r_img = restorer.enhance(
+    #         img,
+    #         has_aligned=False,
+    #         only_center_face=False,
+    #         paste_back=True)
+    #     # mj inserted 3 line code
+    #     # interpolation = cv2.INTER_AREA if upscale < 2 else cv2.INTER_LANCZOS4
+    #     # h, w = img.shape[0:2]
+    #     # r_img = cv2.resize(r_img, (int(w * upscale / 2), int(h * upscale / 2)), interpolation=interpolation)
+        
+    #     r_img = cv2.cvtColor(r_img, cv2.COLOR_BGR2RGB)
+    #     yield r_img
+        
+def restore_mul(image):
+    
+    img = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         # mj inserted 3 line code
-        # interpolation = cv2.INTER_AREA if upscale < 2 else cv2.INTER_LANCZOS4
-        # h, w = img.shape[0:2]
-        # r_img = cv2.resize(r_img, (int(w * upscale / 2), int(h * upscale / 2)), interpolation=interpolation)
-        
-        r_img = cv2.cvtColor(r_img, cv2.COLOR_BGR2RGB)
-        yield r_img
+    # h, w = img.shape[0:2]
+    # if h < 300:
+    #     img = cv2.resize(img, (w * 2, h * 2), interpolation=cv2.INTER_LANCZOS4)
+    # restore faces and background if necessary
+    cropped_faces, restored_faces, r_img = restorer.enhance(
+        img,
+        has_aligned=False,
+        only_center_face=False,
+        paste_back=True)
+    # mj inserted 3 line code
+    # interpolation = cv2.INTER_AREA if upscale < 2 else cv2.INTER_LANCZOS4
+    # h, w = img.shape[0:2]
+    # r_img = cv2.resize(r_img, (int(w * upscale / 2), int(h * upscale / 2)), interpolation=interpolation)
+    
+    r_img = cv2.cvtColor(r_img, cv2.COLOR_BGR2RGB)
+    # # read image
+    # img_name = os.path.basename(img_path)
+    # print(f'Processing {img_name} ...')
+    # basename, ext = os.path.splitext(img_name)
+    # input_img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+
+    # # restore faces and background if necessary
+    # cropped_faces, restored_faces, restored_img = restorer.enhance(
+    #     input_img,
+    #     has_aligned=False,
+    #     only_center_face=False,
+    #     paste_back=True)
+    # # save restored img
+    # if restored_img is not None:
+    #     if args.ext == 'auto':
+    #         extension = ext[1:]
+    #     else:
+    #         extension = args.ext
+
+    #     if args.suffix is not None:
+    #         save_restore_path = os.path.join(args.output, 'restored_imgs', f'{basename}_{args.suffix}.{extension}')
+    #     else:
+    #         save_restore_path = os.path.join(args.output, 'restored_imgs', f'{basename}.{extension}')
+    #     imwrite(restored_img, save_restore_path)

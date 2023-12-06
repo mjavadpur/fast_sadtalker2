@@ -1,3 +1,4 @@
+from time import perf_counter
 import numpy as np
 import cv2, os, sys, torch
 from tqdm import tqdm
@@ -48,8 +49,14 @@ def split_coeff(coeffs):
 
 class CropAndExtract():
     def __init__(self, sadtalker_path, device):
+        start = perf_counter()
 
         self.propress = Preprocesser(device)
+        end  = perf_counter()
+        print(f"CropAndExtract  Preprocesser:  {end - start}")
+        
+        
+        start = perf_counter()
         self.net_recon = networks.define_net_recon(net_recon='resnet50', use_last_fc=False, init_path='').to(device)
         
         if sadtalker_path['use_safetensor']:
@@ -66,7 +73,13 @@ class CropAndExtract():
         ########## Add Code ##########
 
         self.net_recon.eval()
+        
+        end  = perf_counter()
+        print(f"CropAndExtract  self.net_recon:  {end - start}")
+        start  = perf_counter()
         self.lm3d_std = load_lm3d(sadtalker_path['dir_of_BFM_fitting'])
+        end  = perf_counter()
+        print(f"CropAndExtract  self.lm3d_std:  {end - start}")
         self.device = device
     
     def generate(self, input_path, save_dir, crop_or_resize='crop', source_image_flag=False, pic_size=256):
