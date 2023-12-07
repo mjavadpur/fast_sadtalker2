@@ -9,6 +9,7 @@ from src.utils.videoio import load_video_to_cv2
 
 import cv2
 
+from torch.multiprocessing.pool import Pool
 
 class GeneratorWithLen(object):
     """ From https://stackoverflow.com/a/7460929 """
@@ -100,24 +101,53 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
         # download pre-trained models from url
         model_path = url
 
+    upscale=2 # or 4 for high resolution videos
+    # restorer = GFPGANer(
+    #     model_path=model_path,
+    #     upscale=upscale,
+    #     arch=arch,
+    #     channel_multiplier=channel_multiplier,
+    #     bg_upsampler=bg_upsampler)
+    results_generator = generate_upscaled_images(images,  model_path, upscale, arch, channel_multiplier, bg_upsampler)
+    return results_generator
+
+def generate_upscaled_images(input_images,  model_path, upscale, arch, channel_multiplier, bg_upsampler):
+    # ایجاد یک پول چندپردازشی
+    ctx = torch.multiprocessing.get_context("spawn")
+    with ctx.Pool() as pool:
+        # استفاده از imap به جای map برای پردازش موازی
+        results = pool.imap(upscale_image, [(image_path,  model_path, upscale, arch, channel_multiplier, bg_upsampler) for image_path in input_images])
+
+        # گرفتن نتایج و yield آن‌ها
+        for output_image in results:
+            yield output_image
+            
+
+def upscale_image(args):
+    image, model_path, upscale, arch, channel_multiplier, bg_upsampler = args
     restorer = GFPGANer(
         model_path=model_path,
-        upscale=2,
+        upscale=upscale,
         arch=arch,
         channel_multiplier=channel_multiplier,
         bg_upsampler=bg_upsampler)
+    # for image in chunk:
+    img = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    # mj inserted 3 line code
+    # h, w = img.shape[0:2]
+    # if h < 300:
+    #     img = cv2.resize(img, (w * 2, h * 2), interpolation=cv2.INTER_LANCZOS4)
+    # restore faces and background if necessary
+    cropped_faces, restored_faces, r_img = restorer.enhance(
+        img,
+        has_aligned=False,
+        only_center_face=False,
+        paste_back=True)
+    # mj inserted 3 line code
+    # interpolation = cv2.INTER_AREA if upscale < 2 else cv2.INTER_LANCZOS4
+    # h, w = img.shape[0:2]
+    # r_img = cv2.resize(r_img, (int(w * upscale / 2), int(h * upscale / 2)), interpolation=interpolation)
 
-    # ------------------------ restore ------------------------
-    for idx in tqdm(range(len(images)), 'Face Enhancer:'):
-        
-        img = cv2.cvtColor(images[idx], cv2.COLOR_RGB2BGR)
-        
-        # restore faces and background if necessary
-        cropped_faces, restored_faces, r_img = restorer.enhance(
-            img,
-            has_aligned=False,
-            only_center_face=False,
-            paste_back=True)
-        
-        r_img = cv2.cvtColor(r_img, cv2.COLOR_BGR2RGB)
-        yield r_img
+    r_img = cv2.cvtColor(r_img, cv2.COLOR_BGR2RGB)
+        # results.append(r_img)
+    return r_img

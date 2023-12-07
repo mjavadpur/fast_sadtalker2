@@ -260,8 +260,9 @@ class AnimateFromCoeff():
             try:
                 enhanced_images_gen_with_len = enhancer_generator_with_len(full_video_path, method=enhancer, bg_upsampler=background_enhancer)
                 imageio.mimsave(enhanced_path, enhanced_images_gen_with_len, fps=float(fps))
-            except:
+            except Exception as e:
                 print('error in enhancer_generator_with_len')
+                print(e.with_traceback())
                 enhanced_images_gen_with_len = enhancer_list(full_video_path, method=enhancer, bg_upsampler=background_enhancer)
                 imageio.mimsave(enhanced_path, enhanced_images_gen_with_len, fps=float(fps))
             
