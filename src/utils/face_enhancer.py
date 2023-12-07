@@ -9,7 +9,6 @@ from src.utils.videoio import load_video_to_cv2
 
 import cv2
 
-restorer = None
 class GeneratorWithLen(object):
     """ From https://stackoverflow.com/a/7460929 """
 
@@ -111,7 +110,7 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
     
     ctx = torch.multiprocessing.get_context("spawn")
     with ctx.Pool(2) as pool:
-        r_img = pool.map(restore_mul, images)
+        r_img = pool.map(restore_mul, [restorer, images])
     # pool = ctx.Pool(7)
     # pool.map(restore_mul, images)
     
@@ -137,7 +136,7 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
     #     r_img = cv2.cvtColor(r_img, cv2.COLOR_BGR2RGB)
     #     yield r_img
         
-def restore_mul(image):
+def restore_mul(restorer, image):
     
     img = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         # mj inserted 3 line code
@@ -146,7 +145,7 @@ def restore_mul(image):
     #     img = cv2.resize(img, (w * 2, h * 2), interpolation=cv2.INTER_LANCZOS4)
     # restore faces and background if necessary
     cropped_faces, restored_faces, r_img = restorer.enhance(
-        img,
+        image,
         has_aligned=False,
         only_center_face=False,
         paste_back=True)
